@@ -5,8 +5,8 @@ package functions
  */
 class Request(val method: String, val query: String, val contentType: String)
 data class Response(var contents: String, var status: Status) {
-    fun status(f: Status.() -> Unit) {
-        status.f()
+    operator fun invoke(status: Status.() -> Unit) {
+
     }
 }
 
@@ -18,18 +18,10 @@ class RouteHandler(val request: Request, val response: Response) {
     fun next() {
         executeNext = true
     }
-
-    fun response(f: Response.() -> Unit): Response {
-        response.f()
-        return response
-    }
 }
 
 
-fun routeHandler(path: String, f: RouteHandler.() -> Response): Response {
-    val routeHandlerObject = RouteHandler(Request("Get", "query", "contentType"), Response("", Status(200, "")))
-    return routeHandlerObject.f()
-}
+fun routeHandler(path: String, f: RouteHandler.() -> Unit): RouteHandler.() -> Unit = f
 
 fun main(args: Array<String>) {
 
@@ -38,12 +30,19 @@ fun main(args: Array<String>) {
             //process
         }
         response {
-            status {
-                code = 404
-                description = "Not found"
-            }
+            code = 404
+            description = "Not found"
         }
     }
 
     println(responseObject)
+
+    val manager = Manager()
+    manager("Do Something")
+}
+
+class Manager {
+    operator fun invoke(value: String) {
+
+    }
 }
